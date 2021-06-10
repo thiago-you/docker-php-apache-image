@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:7.4
 
 LABEL Thiago You <thiago.youx@gmail.com>
 
@@ -14,6 +14,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 # Install common and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
+    wget \
     apt-utils \
     curl \
     apt-transport-https \
@@ -119,9 +120,13 @@ ARG DEPS="\
         apache2 \
 "
 
-# install MS core font
-RUN sed -i'.bak' 's/$/ contrib/' /etc/apt/sources.list \ 
-    apt-get update; apt-get install -y ttf-mscorefonts-installer
+# Installing packages
+RUN apt-get install -y --no-install-recommends fontconfig xfonts-75dpi xfonts-utils cabextract
+
+# Install ttf-mscorefonts using DEB
+RUN wget http://ftp.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb && \
+    dpkg -i ttf-mscorefonts-installer_3.6_all.deb && \
+    rm -f ttf-mscorefonts-installer_3.6_all.deb
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
