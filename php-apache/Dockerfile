@@ -119,6 +119,13 @@ ARG DEPS="\
         apache2 \
 "
 
+# Install nodejs with angular
+RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm && \
+    npm cache clean -f && npm uninstall -g npm && npm install \ 
+    -g npm@latest \
+    -g bower \
+    -g @angular/cli
+
 # Installing packages
 RUN apt-get install -y --no-install-recommends fontconfig xfonts-75dpi xfonts-utils cabextract
 

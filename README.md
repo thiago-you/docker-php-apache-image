@@ -7,11 +7,10 @@ Run Image
 - sudo docker run -d cpn-php
 
 Commit Image
-- sudo docker container ls
 - sudo docker container commit b343aa4245ed thiagoyou/cpn-php
 
 Tag Image
-- sudo docker image tag thiagoyou/cpn-php:latest thiagoyou/cpn-php:latest
+- sudo docker image tag thiagoyou/cpn-php thiagoyou/cpn-php:latest
 
 Push Image
 - sudo docker image push thiagoyou/cpn-php:latest
