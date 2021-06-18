@@ -96,7 +96,7 @@ ARG DEPS="\
 # Install nodejs with angular
 RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm && \
     npm cache clean -f && npm uninstall -g npm && npm install \ 
-    -g npm@latest \
+    -g npm \
     -g bower \
     -g @angular/cli
 
