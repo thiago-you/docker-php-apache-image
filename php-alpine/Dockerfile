@@ -15,7 +15,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install common and system dependencies
 RUN apk update && apk upgrade && apk add --no-cache \
-    git \
     curl \
     zip \
     unzip \

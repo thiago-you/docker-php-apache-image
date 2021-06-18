@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:7.4
 
 LABEL Thiago You <thiago.youx@gmail.com>
 
@@ -40,6 +40,32 @@ RUN docker-php-ext-install intl && docker-php-ext-configure intl && \
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
+
+# PHP phalcon 4.1.0 env
+ARG PSR_VERSION=1.0.1
+ARG PHALCON_VERSION=4.1.0
+ARG PHALCON_EXT_PATH=php7/64bits
+
+# download and install PHP phalcon 4.1.0
+RUN set -xe && \
+    # Download PSR, see https://github.com/jbboehr/php-psr
+    curl -LO https://github.com/jbboehr/php-psr/archive/v${PSR_VERSION}.tar.gz && \
+    tar xzf ${PWD}/v${PSR_VERSION}.tar.gz && \
+    # Download Phalcon
+    curl -LO https://github.com/phalcon/cphalcon/archive/v${PHALCON_VERSION}.tar.gz && \
+    tar xzf ${PWD}/v${PHALCON_VERSION}.tar.gz && \
+    docker-php-ext-install -j $(getconf _NPROCESSORS_ONLN) \
+        ${PWD}/php-psr-${PSR_VERSION} \
+        ${PWD}/cphalcon-${PHALCON_VERSION}/build/${PHALCON_EXT_PATH} \
+    && \
+    # Remove all temp files
+    rm -r \
+        ${PWD}/v${PSR_VERSION}.tar.gz \
+        ${PWD}/php-psr-${PSR_VERSION} \
+        ${PWD}/v${PHALCON_VERSION}.tar.gz \
+        ${PWD}/cphalcon-${PHALCON_VERSION} \
+    && \
+    php -m
 
 # Persistent runtime dependencies
 ARG DEPS="\
@@ -93,21 +119,16 @@ ARG DEPS="\
         apache2 \
 "
 
-# Install nodejs with angular
-RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm && \
-    npm cache clean -f && npm uninstall -g npm && npm install \ 
-    -g npm@latest \
-    -g bower \
-    -g @angular/cli
+# Installing packages
+RUN apt-get install -y --no-install-recommends fontconfig xfonts-75dpi xfonts-utils cabextract
+
+# Install ttf-mscorefonts using DEB
+RUN wget http://ftp.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb && \
+    dpkg -i ttf-mscorefonts-installer_3.6_all.deb && \
+    rm -f ttf-mscorefonts-installer_3.6_all.deb
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Enable apache mods.
-RUN a2enmod rewrite
-
-# By default start up apache in the foreground, override with /bin/bash for interative.
-CMD /usr/sbin/apache2ctl -D FOREGROUND
