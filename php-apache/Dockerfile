@@ -119,12 +119,22 @@ ARG DEPS="\
         apache2 \
 "
 
-# Install nodejs with angular
-RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm && \
-    npm cache clean -f && npm uninstall -g npm && npm install \ 
-    -g npm@latest \
-    -g bower \
-    -g @angular/cli
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 12.14.0
+
+# Install nvm with  node and npm
+RUN mkdir -p $NVM_DIR && curl https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default
+
+# add node and npm to path so the commands are available
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+# Install angular
+RUN npm cache clean -f && npm install -g bower -g @angular/cli
 
 # Installing packages
 RUN apt-get install -y --no-install-recommends fontconfig xfonts-75dpi xfonts-utils cabextract
@@ -145,3 +155,7 @@ RUN a2enmod rewrite
 
 # By default start up apache in the foreground, override with /bin/bash for interative.
 CMD /usr/sbin/apache2ctl -D FOREGROUND
+
+RUN node -v
+RUN npm -v
+RUN ng --version
