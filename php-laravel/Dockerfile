@@ -116,8 +116,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable apache mods.
-RUN a2enmod rewrite
+# Enable required apache mods.
+RUN a2enmod rewrite headers
 
 # By default start up apache in the foreground, override with /bin/bash for interative.
 CMD /usr/sbin/apache2ctl -D FOREGROUND
