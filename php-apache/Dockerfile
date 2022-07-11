@@ -41,6 +41,11 @@ RUN docker-php-ext-install intl && docker-php-ext-configure intl && \
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions psr
+
 # PHP phalcon 4.1.0 env
 ARG PSR_VERSION=1.0.1
 ARG PHALCON_VERSION=4.1.0
@@ -108,6 +113,7 @@ ARG DEPS="\
         php7.4-intl \
         php7.4-mysql \
         php7.4-soap  \
+        php7.4-psr \
         php7.4-pdo_mysql \
         php7.4-gettext \
         php7.4-mysqli \
@@ -151,7 +157,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable required apache mods.
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers proxy_http
 
 # By default start up apache in the foreground, override with /bin/bash for interative.
 CMD /usr/sbin/apache2ctl -D FOREGROUND
