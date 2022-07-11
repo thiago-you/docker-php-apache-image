@@ -140,10 +140,11 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Install angular
-RUN npm cache clean -f && npm install -g bower -g @angular/cli
+RUN npm cache clean -f && npm install -g bower -g @angular/cli@12.2.10
 
 # Installing packages
-RUN apt-get install -y --no-install-recommends fontconfig xfonts-75dpi xfonts-utils cabextract
+RUN apt-get update -y && \ 
+    apt-get install -y --no-install-recommends xfonts-utils cabextract
 
 # Install ttf-mscorefonts using DEB
 RUN wget http://ftp.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb && \
