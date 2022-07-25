@@ -57,7 +57,7 @@ RUN set -ex \
     && rm -rf $MEMCACHED
 
 # PHP phalcon 4.1.0 env
-ARG PSR_VERSION=1.0.1
+ARG PSR_VERSION=1.2.0
 ARG PHALCON_VERSION=4.1.0
 ARG PHALCON_EXT_PATH=php7/64bits
 

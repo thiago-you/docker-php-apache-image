@@ -66,7 +66,7 @@ RUN rm -rf /tmp/pear
 RUN echo "extension=rdkafka.so" > /usr/local/etc/php/conf.d/rdkafka.ini
 
 # PHP phalcon 4.1.0 env
-ARG PSR_VERSION=1.0.1
+ARG PSR_VERSION=1.2.0
 ARG PHALCON_VERSION=4.1.0
 ARG PHALCON_EXT_PATH=php7/64bits
 
