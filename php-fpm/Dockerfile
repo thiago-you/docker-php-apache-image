@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     zip \
     unzip \
+    supervisor \
     g++ \
     zlib1g-dev \ 
     libicu-dev \
@@ -170,9 +171,12 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Enable required apache mods.
 RUN a2enmod rewrite headers proxy_http actions proxy_fcgi
 
-# start PHP-FPM and start up apache in the foreground
-# override with /bin/bash for interative.
-CMD ["/bin/bash", "-c", "php-fpm && /usr/sbin/apache2ctl -D FOREGROUND"]
+# copu configs do image
+COPY config/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY supervisor /etc/supervisor
+
+# start PHP FPM and APACHE2 services using supervisor
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
 RUN node -v
 RUN npm -v
