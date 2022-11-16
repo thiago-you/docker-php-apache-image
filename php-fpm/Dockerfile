@@ -173,6 +173,7 @@ RUN a2enmod rewrite headers proxy_http actions proxy_fcgi
 
 # copu configs do image
 COPY config/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY config/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY supervisor /etc/supervisor
 
 # start PHP FPM and APACHE2 services using supervisor
