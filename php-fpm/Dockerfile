@@ -32,7 +32,48 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmcrypt-dev \
     libzip-dev \
     libxslt1-dev \
-    libpcre3-dev
+    libpcre3-dev \
+    # Install PHP source dependencies
+    git \
+    make \
+    build-essential \
+    autoconf \
+    libtool \
+    bison \
+    re2c \
+    pkg-config \
+    openssl \
+    sqlite3 \
+    libsqlite3-dev \
+    openssl \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    apache2-dev
+
+# Download and build PHP lib from source
+RUN git clone https://github.com/php/php-src.git --branch=PHP-7.4.33 --depth=1 && \ 
+    mkdir /usr/local/php7.4 && \
+    cd php-src && git status && \
+    ./buildconf --force --build && \
+    ./configure \
+    --prefix=/usr/local/php \
+    --sysconfdir=/etc/apache \
+    --enable-so \
+    --with-apxs2 \
+    --libexecdir=/usr/local/php7.4/libexec \
+    --enable-mbstring \
+    --with-curl \
+    --with-openssl \
+    --with-xmlrpc \
+    --enable-soap \
+    --with-mysqli \
+    --enable-embedded-mysqli \
+    --with-freetype-dir \
+    --enable-intl \
+    --with-xsl \
+    --with-zlib && \
+    make -j4 && make install && \
+    cd ../ && rm -rf php-src
 
 # install external PHP modules before change init dir
 RUN docker-php-ext-install intl && docker-php-ext-configure intl && \
@@ -168,10 +209,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable required apache mods.
-RUN a2enmod rewrite headers proxy_http actions proxy_fcgi
+# Add apache2 config
+RUN echo "AddType application/x-http-php  .php" >> /etc/apache2/apache2.conf && \
+    echo "DirectoryIndex  index.php  index.html" >> /etc/apache2/apache2.conf && \
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# copu configs do image
+# Enable required apache mods.
+RUN a2dismod mpm_worker mpm_event && \
+    a2enmod rewrite headers proxy_http actions proxy_fcgi mpm_prefork
+
+# Copy configs do image
 COPY config/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY config/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY supervisor /etc/supervisor
@@ -179,9 +226,12 @@ COPY supervisor /etc/supervisor
 # start PHP FPM and APACHE2 services using supervisor
 CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
-RUN node -v
-RUN npm -v
-RUN ng --version
+# Print Node and PHP version
+RUN node -v && \
+    npm -v && \
+    ng --version && \
+    php -v && echo "\n"
 
+# Expode HTTP and FCGI (FPM) port 
 EXPOSE 80
 EXPOSE 9000
