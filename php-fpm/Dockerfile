@@ -228,15 +228,15 @@ RUN echo "AddType application/x-http-php  .php" >> /etc/apache2/apache2.conf && 
     echo "DirectoryIndex  index.php  index.html" >> /etc/apache2/apache2.conf && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Enable required apache mods.
-RUN a2dismod mpm_worker mpm_event && \
-    a2enmod rewrite headers proxy_http actions proxy_fcgi mpm_prefork
-
 # Copy configs to image
 COPY config/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY config/php7.conf /etc/apache2/mods-available/php7.conf
 COPY config/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY supervisor /etc/supervisor
+
+# Enable required apache mods.
+RUN a2dismod mpm_worker mpm_event && \
+    a2enmod php7 rewrite headers proxy_http actions proxy_fcgi mpm_prefork
 
 # start PHP FPM and APACHE2 services using supervisor
 CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
