@@ -2,9 +2,9 @@ FROM thiagoyou/cpn-php:apache
 
 LABEL Thiago You <thiago.youx@gmail.com>
 
-# Arguments defined in docker-compose.yml
-ARG user
-ARG uid
+# Define user
+ARG user=dev
+ARG uid=1000
 
 # Fix debconf warnings upon build
 ARG DEBIAN_FRONTEND=noninteractive
@@ -35,7 +35,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./config/php.ini /usr/local/etc/php/
 
 # copy PHP Source Guardian extension
-COPY ./config/extensions/ixed.7.4.lin /usr/local/lib/php/extensions/no-debug-non-zts-20190902
+COPY ./config/ixed.7.4.lin /usr/local/lib/php/extensions/no-debug-non-zts-20190902
 
 # Set working directory
 WORKDIR /var/www/html
