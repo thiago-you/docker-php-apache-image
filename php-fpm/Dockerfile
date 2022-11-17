@@ -58,20 +58,34 @@ RUN git clone https://github.com/php/php-src.git --branch=PHP-7.4.33 --depth=1 &
     ./configure \
     --prefix=/usr/local/php \
     --sysconfdir=/etc/apache \
-    --enable-so \
-    --with-apxs2 \
     --libexecdir=/usr/local/php7.4/libexec \
-    --enable-mbstring \
+    --with-apxs2 \
     --with-curl \
     --with-openssl \
     --with-xmlrpc \
-    --enable-soap \
     --with-mysqli \
-    --enable-embedded-mysqli \
+    --with-pdo-mysql \
+    --with-zip \
+    --with-bcmath \
+    --with-calendar \
+    --with-gettext \
+    --with-exif \
+    --with-pcntl \
+    --with-shmop \
+    --with-soap \
+    --with-sockets \
+    --with-sysvmsg \
+    --with-sysvsem \
+    --with-sysvshm \
+    --with-gd \
     --with-freetype-dir \
-    --enable-intl \
     --with-xsl \
-    --with-zlib && \
+    --with-zlib \
+    --enable-so \
+    --enable-mbstring \
+    --enable-soap \
+    --enable-embedded-mysqli \
+    --enable-intl && \
     make -j4 && make install && \
     cd ../ && rm -rf php-src
 
@@ -79,7 +93,7 @@ RUN git clone https://github.com/php/php-src.git --branch=PHP-7.4.33 --depth=1 &
 RUN docker-php-ext-install intl && docker-php-ext-configure intl && \
     docker-php-ext-install mysqli && docker-php-ext-configure mysqli && \
     docker-php-ext-install zip && docker-php-ext-configure zip && \
-    docker-php-ext-install xsl pdo_mysql bcmath calendar exif gd gettext mysqli pcntl shmop soap sockets sysvmsg sysvsem sysvshm xsl
+    docker-php-ext-install pdo_mysql bcmath calendar exif gd gettext mysqli pcntl shmop soap sockets sysvmsg sysvsem sysvshm xsl
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
@@ -218,8 +232,9 @@ RUN echo "AddType application/x-http-php  .php" >> /etc/apache2/apache2.conf && 
 RUN a2dismod mpm_worker mpm_event && \
     a2enmod rewrite headers proxy_http actions proxy_fcgi mpm_prefork
 
-# Copy configs do image
+# Copy configs to image
 COPY config/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY config/php7.conf /etc/apache2/mods-available/php7.conf
 COPY config/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY supervisor /etc/supervisor
 
